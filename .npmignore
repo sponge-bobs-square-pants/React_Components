@@ -1,0 +1,11 @@
+# .npmignore
+src/
+public/
+index.html
+vite.config.js
+eslint.config.js
+.github/
+.vscode/
+package-lock.json
+node_modules/
+*.log
