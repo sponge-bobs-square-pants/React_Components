@@ -26,6 +26,8 @@ const defaultConfig = {
   zIndex: 50,
   headerText: "Notifications", // Text to display in the header
   actionButton: "Collapse", // Default action button: Collapse, Clear, or Mute
+  isMuted: false, // Mute state
+  unreadCount: 0, // Counter for unseen notifications while muted
 };
 
 // Initial state
@@ -83,6 +85,19 @@ const notificationReducer = (state, action) => {
 
       console.log(`Adding notification #${id} with dedupKey: ${dedupKey}`);
 
+      // If muted, increment the unread count
+      if (state.config.isMuted) {
+        return {
+          ...state,
+          notifications: [...state.notifications, notification],
+          nextId: state.nextId + 1,
+          config: {
+            ...state.config,
+            unreadCount: state.config.unreadCount + 1,
+          },
+        };
+      }
+
       // Add notification to the array and increment the ID counter
       return {
         ...state,
@@ -119,6 +134,19 @@ const notificationReducer = (state, action) => {
         config: {
           ...state.config,
           ...action.payload,
+        },
+      };
+    }
+    case "TOGGLE_MUTE": {
+      const newMutedState = !state.config.isMuted;
+
+      // If unmuting, reset the unread counter
+      return {
+        ...state,
+        config: {
+          ...state.config,
+          isMuted: newMutedState,
+          unreadCount: newMutedState ? state.config.unreadCount : 0,
         },
       };
     }
@@ -161,6 +189,17 @@ export const NotificationProvider = ({
         clearTimeout(timerId);
       });
     };
+  }, []);
+
+  // Load saved mute state from localStorage on mount
+  useEffect(() => {
+    const savedMuteState = localStorage.getItem("notifications-muted");
+    if (savedMuteState === "true") {
+      dispatch({
+        type: "UPDATE_CONFIG",
+        payload: { isMuted: true },
+      });
+    }
   }, []);
 
   // Enhanced dispatch with idempotent timer handling
@@ -233,6 +272,15 @@ export const NotificationProvider = ({
     },
     [state.nextId, state.config.duration]
   );
+
+  // Toggle mute state
+  const toggleMute = useCallback(() => {
+    dispatch({ type: "TOGGLE_MUTE" });
+
+    // Save to localStorage
+    const newMuteState = !state.config.isMuted;
+    localStorage.setItem("notifications-muted", newMuteState.toString());
+  }, [state.config.isMuted]);
 
   // Notification action creators
   const showNotification = useCallback(
@@ -321,6 +369,7 @@ export const NotificationProvider = ({
     removeNotification,
     clearAllNotifications,
     updateConfig,
+    toggleMute,
   };
 
   return (
@@ -417,6 +466,13 @@ export const NotificationAPI = (() => {
     }
   };
 
+  const toggleMute = () => {
+    const context = getContextValue();
+    if (context) {
+      context.toggleMute();
+    }
+  };
+
   return {
     setContextValue,
     showNotification,
@@ -425,5 +481,6 @@ export const NotificationAPI = (() => {
     showInfo,
     showWarning,
     clearAllNotifications,
+    toggleMute,
   };
 })();

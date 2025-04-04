@@ -5,8 +5,13 @@ import { useNotification } from "../context/NotificationContext";
 
 const NotificationCardStack = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { notifications, removeNotification, clearAllNotifications, config } =
-    useNotification();
+  const {
+    notifications,
+    removeNotification,
+    clearAllNotifications,
+    toggleMute,
+    config,
+  } = useNotification();
 
   // No notifications, no rendering
   if (notifications.length === 0) return null;
@@ -70,15 +75,42 @@ const NotificationCardStack = () => {
     } else if (config.actionButton === "Clear") {
       clearAllNotifications();
     } else if (config.actionButton === "Mute") {
-      // Implement mute functionality
-      console.log("Mute button clicked");
-      // Add your mute logic here
+      toggleMute();
     }
   };
 
   // Create a reversed array for display (newest on top)
   const displayNotifications = [...notifications].reverse();
 
+  // If muted, show only the unmute button with counter
+  if (config.isMuted) {
+    return (
+      <div
+        className={`flex ${getPositionClasses()} z-${
+          config.zIndex
+        } pointer-events-none mt-[-40px]`}
+      >
+        <div className="relative pointer-events-auto top-0 left-0">
+          <motion.div
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-full shadow-md text-gray-700 font-medium cursor-pointer flex items-center"
+            onClick={toggleMute}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span>Unmute</span>
+            {config.unreadCount > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-white rounded-full text-xs">
+                {config.unreadCount}
+              </span>
+            )}
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular notification stack display (when not muted)
   return (
     <div
       className={`flex ${getPositionClasses()} z-${
@@ -94,7 +126,7 @@ const NotificationCardStack = () => {
           <AnimatePresence>
             {isExpanded && displayNotifications.length > 0 && (
               <motion.div
-                className="absolute left-0 top-0 z-10 transform -translate-y-12 w-full flex justify-between items-center"
+                className="absolute left-0 top-0 z-10 transform -translate-y-10 w-full flex justify-between items-center"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5, transition: { duration: 0.15 } }}
@@ -105,11 +137,11 @@ const NotificationCardStack = () => {
                 }}
               >
                 {/* Text on left side from config */}
-                <div className="text-gray-700 font-medium p-2">
+                <div className="text-gray-700 font-medium">
                   {config.headerText}
                 </div>
 
-                {/* Action button on right side from config */}
+                {/* Action button */}
                 <button
                   onClick={handleActionButtonClick}
                   className="text-gray-600 px-4 py-1 rounded-full bg-gray-200 hover:bg-gray-300"
@@ -119,6 +151,7 @@ const NotificationCardStack = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
           <div
             className="relative"
             style={{

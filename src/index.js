@@ -6,8 +6,8 @@ import {
   NotificationAPI,
 } from "./context/NotificationContext";
 import "./index.css";
-// Export components
 
+// Export components
 export { NotificationPortal, NotificationProvider, useNotification };
 
 // Export global API functions
@@ -17,3 +17,4 @@ export const showSuccess = NotificationAPI.showSuccess;
 export const showInfo = NotificationAPI.showInfo;
 export const showWarning = NotificationAPI.showWarning;
 export const clearAllNotifications = NotificationAPI.clearAllNotifications;
+export const toggleMute = NotificationAPI.toggleMute;
