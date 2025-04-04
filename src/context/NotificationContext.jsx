@@ -1,4 +1,3 @@
-// src/context/NotificationContext.jsx
 import React, {
   createContext,
   useContext,
@@ -30,41 +29,30 @@ const defaultConfig = {
   unreadCount: 0, // Counter for unseen notifications while muted
 };
 
-// Initial state
 const initialState = {
   notifications: [],
   config: defaultConfig,
-  nextId: 1, // Track ID counter in the state
+  nextId: 1,
 };
 
-// Notification reducer
 const notificationReducer = (state, action) => {
   switch (action.type) {
     case "ADD_NOTIFICATION": {
-      // Generate a unique deduplication key based on message content and timestamp
       const dedupKey = `${action.payload.message}-${
         action.payload.type
       }-${Date.now()}`;
-
-      // Check if we've recently added a very similar notification (within last 500ms)
       const isDuplicate = state.notifications.some((notif) => {
         const timeDiff = Date.now() - notif.timestamp;
         const isSameContent =
           notif.message === action.payload.message &&
           notif.type === action.payload.type;
-        // Consider it a duplicate if it's the same content and added within the last 500ms
         return isSameContent && timeDiff < 500;
       });
-
-      // Skip adding duplicate notifications
       if (isDuplicate) {
-        console.log(
-          `Skipping duplicate notification: "${action.payload.message}"`
-        );
         return state;
       }
 
-      const id = state.nextId; // Use ID from state
+      const id = state.nextId;
       const notification = {
         id,
         title: action.payload.title || "Notification",
@@ -73,19 +61,13 @@ const notificationReducer = (state, action) => {
         autoRemove: action.payload.autoRemove !== false,
         duration: action.payload.duration || state.config.duration,
         timestamp: Date.now(),
-        dedupKey, // Store the deduplication key
-        // Additional customizable properties
+        dedupKey,
         icon: action.payload.icon || null,
-        priority: action.payload.priority || "normal", // low, normal, high
+        priority: action.payload.priority || "normal",
         actionCallback: action.payload.actionCallback || null,
-        // Per-notification configuration overrides
         width: action.payload.width || null,
         cardHeight: action.payload.cardHeight || null,
       };
-
-      console.log(`Adding notification #${id} with dedupKey: ${dedupKey}`);
-
-      // If muted, increment the unread count
       if (state.config.isMuted) {
         return {
           ...state,
@@ -97,26 +79,17 @@ const notificationReducer = (state, action) => {
           },
         };
       }
-
-      // Add notification to the array and increment the ID counter
       return {
         ...state,
         notifications: [...state.notifications, notification],
-        nextId: state.nextId + 1, // Increment in state
+        nextId: state.nextId + 1,
       };
     }
     case "REMOVE_NOTIFICATION": {
       const idToRemove = action.payload;
-      console.log(`Removing notification #${idToRemove}`);
-
       const updatedNotifications = state.notifications.filter(
         (notification) => notification.id !== idToRemove
       );
-
-      console.log(
-        `Current notifications: ${state.notifications.length}, After removal: ${updatedNotifications.length}`
-      );
-
       return {
         ...state,
         notifications: updatedNotifications,
@@ -139,8 +112,6 @@ const notificationReducer = (state, action) => {
     }
     case "TOGGLE_MUTE": {
       const newMutedState = !state.config.isMuted;
-
-      // If unmuting, reset the unread counter
       return {
         ...state,
         config: {
@@ -155,19 +126,15 @@ const notificationReducer = (state, action) => {
   }
 };
 
-// Create context
 const NotificationContext = createContext(null);
-
-// Provider component
 export const NotificationProvider = ({
   children,
   headerText,
   actionButton,
   ...configProps
 }) => {
-  // Keep track of notification timers
   const notificationTimers = useRef(new Map());
-  const dispatchLockRef = useRef(false); // Add lock reference
+  const dispatchLockRef = useRef(false);
 
   const combinedConfig = {
     ...defaultConfig,
@@ -180,18 +147,13 @@ export const NotificationProvider = ({
     ...initialState,
     config: combinedConfig,
   });
-
-  // Clear timer when component unmounts
   useEffect(() => {
     return () => {
-      // Clean up any remaining timers
       notificationTimers.current.forEach((timerId) => {
         clearTimeout(timerId);
       });
     };
   }, []);
-
-  // Load saved mute state from localStorage on mount
   useEffect(() => {
     const savedMuteState = localStorage.getItem("notifications-muted");
     if (savedMuteState === "true") {
@@ -202,68 +164,39 @@ export const NotificationProvider = ({
     }
   }, []);
 
-  // Enhanced dispatch with idempotent timer handling
   const enhancedDispatch = useCallback(
     (action) => {
-      // For ADD_NOTIFICATION, use a lock to prevent multiple rapid calls
       if (action.type === "ADD_NOTIFICATION") {
         if (dispatchLockRef.current) {
-          // We're in a lock period, skip this action
-          console.log(`Skipping action due to dispatch lock`);
           return;
         }
-
-        // Set lock for a short period (50ms)
         dispatchLockRef.current = true;
         setTimeout(() => {
           dispatchLockRef.current = false;
         }, 50);
       }
-
-      // Process the action
       dispatch(action);
-
-      // Set up auto-removal only if it's an add notification action
       if (action.type === "ADD_NOTIFICATION") {
         const notificationId = state.nextId;
 
         if (action.payload.autoRemove !== false) {
           const duration = action.payload.duration || state.config.duration;
-
-          // Clear any existing timer for this ID (should not happen, but just in case)
           if (notificationTimers.current.has(notificationId)) {
             clearTimeout(notificationTimers.current.get(notificationId));
           }
-
-          console.log(
-            `Setting timeout to remove notification #${notificationId} after ${duration}ms`
-          );
-
-          // Set the new timer
           const timerId = setTimeout(() => {
-            console.log(
-              `Timeout fired: removing notification #${notificationId}`
-            );
             dispatch({ type: "REMOVE_NOTIFICATION", payload: notificationId });
-            // Remove the timer reference
             notificationTimers.current.delete(notificationId);
           }, duration);
-
-          // Store the timer ID
           notificationTimers.current.set(notificationId, timerId);
         }
-      }
-      // Handle removal by clearing associated timer
-      else if (action.type === "REMOVE_NOTIFICATION") {
+      } else if (action.type === "REMOVE_NOTIFICATION") {
         const idToRemove = action.payload;
         if (notificationTimers.current.has(idToRemove)) {
           clearTimeout(notificationTimers.current.get(idToRemove));
           notificationTimers.current.delete(idToRemove);
         }
-      }
-      // Handle clearing all notifications
-      else if (action.type === "CLEAR_ALL_NOTIFICATIONS") {
-        // Clear all timers
+      } else if (action.type === "CLEAR_ALL_NOTIFICATIONS") {
         notificationTimers.current.forEach((timerId) => {
           clearTimeout(timerId);
         });
@@ -272,20 +205,13 @@ export const NotificationProvider = ({
     },
     [state.nextId, state.config.duration]
   );
-
-  // Toggle mute state
   const toggleMute = useCallback(() => {
     dispatch({ type: "TOGGLE_MUTE" });
-
-    // Save to localStorage
     const newMuteState = !state.config.isMuted;
     localStorage.setItem("notifications-muted", newMuteState.toString());
   }, [state.config.isMuted]);
-
-  // Notification action creators
   const showNotification = useCallback(
     (type, message, options = {}) => {
-      // Default titles based on notification type
       const defaultTitles = {
         error: "Error",
         success: "Success",
@@ -343,10 +269,7 @@ export const NotificationProvider = ({
     },
     [enhancedDispatch]
   );
-
-  // Enhanced notification object for the components
   const enhancedNotifications = state.notifications.map((notification) => {
-    // Allow per-notification config overrides
     return {
       ...notification,
       config: {
@@ -356,8 +279,6 @@ export const NotificationProvider = ({
       },
     };
   });
-
-  // Create value object with state and actions
   const value = {
     notifications: enhancedNotifications,
     config: state.config,
@@ -378,8 +299,6 @@ export const NotificationProvider = ({
     </NotificationContext.Provider>
   );
 };
-
-// Custom hook to use the notification context
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
@@ -389,8 +308,6 @@ export const useNotification = () => {
   }
   return context;
 };
-
-// Global notification API
 export const NotificationAPI = (() => {
   let notificationContextValue = null;
 
@@ -407,14 +324,7 @@ export const NotificationAPI = (() => {
     }
     return notificationContextValue;
   };
-
-  // Global functions with debugging
   const showNotification = (type, message, options = {}) => {
-    console.log(`NotificationAPI.showNotification called with:`, {
-      type,
-      message,
-      options,
-    });
     const context = getContextValue();
     if (context) {
       context.showNotification(type, message, options);
@@ -422,7 +332,6 @@ export const NotificationAPI = (() => {
   };
 
   const showError = (message, options = {}) => {
-    console.log(`NotificationAPI.showError called with:`, { message, options });
     const context = getContextValue();
     if (context) {
       context.showError(message, options);
@@ -430,10 +339,6 @@ export const NotificationAPI = (() => {
   };
 
   const showSuccess = (message, options = {}) => {
-    console.log(`NotificationAPI.showSuccess called with:`, {
-      message,
-      options,
-    });
     const context = getContextValue();
     if (context) {
       context.showSuccess(message, options);
@@ -441,7 +346,6 @@ export const NotificationAPI = (() => {
   };
 
   const showInfo = (message, options = {}) => {
-    console.log(`NotificationAPI.showInfo called with:`, { message, options });
     const context = getContextValue();
     if (context) {
       context.showInfo(message, options);
@@ -449,10 +353,6 @@ export const NotificationAPI = (() => {
   };
 
   const showWarning = (message, options = {}) => {
-    console.log(`NotificationAPI.showWarning called with:`, {
-      message,
-      options,
-    });
     const context = getContextValue();
     if (context) {
       context.showWarning(message, options);

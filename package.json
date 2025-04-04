@@ -1,6 +1,6 @@
 {
   "name": "ios-notification-stack",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "iOS-style notification stack system for React applications with bundled dependencies",
   "author": "Parth Chawla",
   "license": "MIT",
@@ -63,12 +63,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/sponge-bobs-square-pants/ios-notification-stack.git"
+    "url": "https://github.com/sponge-bobs-square-pants/React_Components"
   },
   "bugs": {
-    "url": "https://github.com/sponge-bobs-square-pants/ios-notification-stack/issues"
+    "url": "https://github.com/sponge-bobs-square-pants/React_Components/issues"
   },
-  "homepage": "https://github.com/sponge-bobs-square-pants/ios-notification-stack#readme",
+  "homepage": "https://github.com/sponge-bobs-square-pants/React_Components#readme",
   "sideEffects": [
     "*.css"
   ]

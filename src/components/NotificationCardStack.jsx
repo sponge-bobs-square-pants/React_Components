@@ -1,4 +1,3 @@
-// src/components/NotificationCardStack.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNotification } from "../context/NotificationContext";
@@ -13,41 +12,32 @@ const NotificationCardStack = () => {
     config,
   } = useNotification();
 
-  // No notifications, no rendering
   if (notifications.length === 0) return null;
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
-  // Calculate final position for expanded card - evenly spaced down
   const getFinalY = (index) => {
-    return index * config.cardSpacing; // Each card is positioned with margin between cards
+    return index * config.cardSpacing;
   };
 
-  // Calculate card opacity in stacked state based on position
   const getStackedOpacity = (index) => {
-    // Card is fully visible at the top, and progressively more transparent as it goes down the stack
     return Math.max(1 - index * 0.2, 0.5);
   };
 
-  // Get background color based on notification type and position
   const getCardBackground = (type, index) => {
-    // Get color based on type, check customColors first, then default to defaultColors
     let baseColor =
       config.customColors[type] ||
       config.defaultColors[type] ||
       config.defaultColors.info;
 
-    // In expanded state, all cards are fully opaque
     if (isExpanded) return baseColor;
 
-    // In stacked state, cards get progressively more transparent
     const opacity = getStackedOpacity(index);
     return baseColor.replace("rgb", "rgba").replace(")", `, ${opacity})`);
   };
 
-  // Get position classes based on position prop
   const getPositionClasses = () => {
     switch (config.position) {
       case "top-right":
@@ -66,7 +56,6 @@ const NotificationCardStack = () => {
     }
   };
 
-  // Handle action button click
   const handleActionButtonClick = (e) => {
     e.stopPropagation();
 
@@ -79,10 +68,8 @@ const NotificationCardStack = () => {
     }
   };
 
-  // Create a reversed array for display (newest on top)
   const displayNotifications = [...notifications].reverse();
 
-  // If muted, show only the unmute button with counter
   if (config.isMuted) {
     return (
       <div
@@ -110,7 +97,6 @@ const NotificationCardStack = () => {
     );
   }
 
-  // Regular notification stack display (when not muted)
   return (
     <div
       className={`flex ${getPositionClasses()} z-${
@@ -122,7 +108,6 @@ const NotificationCardStack = () => {
         style={{ width: config.width }}
       >
         <div className="relative">
-          {/* Header with text and action button - only show when expanded */}
           <AnimatePresence>
             {isExpanded && displayNotifications.length > 0 && (
               <motion.div
@@ -136,12 +121,9 @@ const NotificationCardStack = () => {
                   ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
-                {/* Text on left side from config */}
                 <div className="text-gray-700 font-medium">
                   {config.headerText}
                 </div>
-
-                {/* Action button */}
                 <button
                   onClick={handleActionButtonClick}
                   className="text-gray-600 px-4 py-1 rounded-full bg-gray-200 hover:bg-gray-300"
@@ -151,7 +133,6 @@ const NotificationCardStack = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
           <div
             className="relative"
             style={{
@@ -159,9 +140,9 @@ const NotificationCardStack = () => {
                 ? getFinalY(displayNotifications.length - 1) +
                   parseInt(config.cardHeight) +
                   "px"
-                : parseInt(config.cardHeight) + 4 + "px", // Dynamic height based on config
+                : parseInt(config.cardHeight) + 4 + "px",
               transition: "min-height 0.5s ease",
-              width: "100%", // Ensure the container maintains full width
+              width: "100%",
             }}
           >
             <div
@@ -169,27 +150,23 @@ const NotificationCardStack = () => {
               style={{
                 height: isExpanded
                   ? "auto"
-                  : parseInt(config.cardHeight) + 4 + "px", // Dynamic height based on config
+                  : parseInt(config.cardHeight) + 4 + "px",
                 paddingBottom: isExpanded
                   ? getFinalY(displayNotifications.length - 1) +
                     parseInt(config.cardHeight) -
                     10
                   : 0,
                 transition: "padding-bottom 0.5s ease",
-                width: "100%", // Ensure the container maintains full width
+                width: "100%",
               }}
             >
               <AnimatePresence>
                 {displayNotifications.map((notification, index) => {
-                  // Get notification-specific config (if available) or use global config
                   const notifConfig = notification.config || config;
-
-                  // Calculate stacked appearance
                   const zIndex = displayNotifications.length - index;
                   const stackedY = index * -config.stackOffset;
                   const stackedScale = Math.pow(0.97, index);
-                  const stackedOpacity = index > 2 ? 0 : 1; // This is for the card visibility, not the background
-
+                  const stackedOpacity = index > 2 ? 0 : 1;
                   return (
                     <motion.div
                       key={notification.id}
@@ -215,8 +192,8 @@ const NotificationCardStack = () => {
                           notification.type,
                           index
                         ),
-                        width: notifConfig.width || "100%", // Use notification-specific width if available
-                        left: 0, // Ensure left alignment within container
+                        width: notifConfig.width || "100%",
+                        left: 0,
                       }}
                       exit={{
                         opacity: 0,
@@ -235,9 +212,9 @@ const NotificationCardStack = () => {
                         top: 0,
                         willChange: "transform, opacity, background-color",
                         backfaceVisibility: "hidden",
-                        height: notifConfig.cardHeight || config.cardHeight, // Use notification-specific height if available
-                        minHeight: "auto", // Ensure no minimum height is enforced
-                        overflow: "hidden", // Hide overflow content using the config value
+                        height: notifConfig.cardHeight || config.cardHeight,
+                        minHeight: "auto",
+                        overflow: "hidden",
                       }}
                       onClick={toggleExpand}
                     >
