@@ -24,6 +24,8 @@ const defaultConfig = {
   },
   customColors: {}, // For overriding colors
   zIndex: 50,
+  headerText: "Notifications", // Text to display in the header
+  actionButton: "Collapse", // Default action button: Collapse, Clear, or Mute
 };
 
 // Initial state
@@ -73,7 +75,6 @@ const notificationReducer = (state, action) => {
         // Additional customizable properties
         icon: action.payload.icon || null,
         priority: action.payload.priority || "normal", // low, normal, high
-        actionLabel: action.payload.actionLabel || null,
         actionCallback: action.payload.actionCallback || null,
         // Per-notification configuration overrides
         width: action.payload.width || null,
@@ -130,14 +131,26 @@ const notificationReducer = (state, action) => {
 const NotificationContext = createContext(null);
 
 // Provider component
-export const NotificationProvider = ({ children, ...configProps }) => {
+export const NotificationProvider = ({
+  children,
+  headerText,
+  actionButton,
+  ...configProps
+}) => {
   // Keep track of notification timers
   const notificationTimers = useRef(new Map());
   const dispatchLockRef = useRef(false); // Add lock reference
 
+  const combinedConfig = {
+    ...defaultConfig,
+    ...configProps,
+    headerText: headerText || defaultConfig.headerText,
+    actionButton: actionButton || defaultConfig.actionButton,
+  };
+
   const [state, dispatch] = useReducer(notificationReducer, {
     ...initialState,
-    config: { ...defaultConfig, ...configProps },
+    config: combinedConfig,
   });
 
   // Clear timer when component unmounts

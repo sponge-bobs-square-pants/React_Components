@@ -56,8 +56,8 @@ function App() {
       });
     }, 2000);
     setTimeout(() => {
-      showNotification("warning", "Pretty Please", {
-        title: "Custom Warning Title",
+      showNotification("error", "https://github.com/sponge-bobs-square-pants", {
+        title: "PRETTY PLEASE!",
         duration: 14000,
       });
     }, 3000);

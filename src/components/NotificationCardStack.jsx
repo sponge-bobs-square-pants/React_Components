@@ -5,7 +5,8 @@ import { useNotification } from "../context/NotificationContext";
 
 const NotificationCardStack = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { notifications, removeNotification, config } = useNotification();
+  const { notifications, removeNotification, clearAllNotifications, config } =
+    useNotification();
 
   // No notifications, no rendering
   if (notifications.length === 0) return null;
@@ -60,6 +61,21 @@ const NotificationCardStack = () => {
     }
   };
 
+  // Handle action button click
+  const handleActionButtonClick = (e) => {
+    e.stopPropagation();
+
+    if (config.actionButton === "Collapse") {
+      toggleExpand();
+    } else if (config.actionButton === "Clear") {
+      clearAllNotifications();
+    } else if (config.actionButton === "Mute") {
+      // Implement mute functionality
+      console.log("Mute button clicked");
+      // Add your mute logic here
+    }
+  };
+
   // Create a reversed array for display (newest on top)
   const displayNotifications = [...notifications].reverse();
 
@@ -74,29 +90,35 @@ const NotificationCardStack = () => {
         style={{ width: config.width }}
       >
         <div className="relative">
+          {/* Header with text and action button - only show when expanded */}
           <AnimatePresence>
-            {isExpanded && displayNotifications.length > 1 && (
+            {isExpanded && displayNotifications.length > 0 && (
               <motion.div
-                className="absolute right-0 top-0 z-10 transform -translate-y-10"
+                className="absolute left-0 top-0 z-10 transform -translate-y-12 w-full flex justify-between items-center"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5, transition: { duration: 0.15 } }}
                 transition={{
-                  delay: 0.5,
+                  delay: 0.3,
                   duration: 0.4,
                   ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
+                {/* Text on left side from config */}
+                <div className="text-gray-700 font-medium p-2">
+                  {config.headerText}
+                </div>
+
+                {/* Action button on right side from config */}
                 <button
-                  onClick={toggleExpand}
-                  className="text-gray-600 px-4 py-1 rounded-full bg-gray-200"
+                  onClick={handleActionButtonClick}
+                  className="text-gray-600 px-4 py-1 rounded-full bg-gray-200 hover:bg-gray-300"
                 >
-                  Collapse
+                  {config.actionButton}
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
-
           <div
             className="relative"
             style={{
