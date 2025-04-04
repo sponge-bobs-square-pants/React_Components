@@ -9,26 +9,57 @@ import {
 
 function App() {
   // Function to test all notification types
-  const testNotifications = () => {
-    showNotification("success", "hey there", {
-      width: "700px",
-      duration: 14000,
-    });
-    showSuccess("This is a success message!");
+  // const testNotifications = () => {
+  //   showNotification("success", "hey there", {
+  //     width: "700px",
+  //     duration: 14000,
+  //   });
+  //   showSuccess("This is a success message!");
 
+  //   setTimeout(() => {
+  //     showError("Something went wrong!", {
+  //       title: "Error Occurred",
+  //       duration: 8000,
+  //     });
+  //   }, 1000);
+
+  //   setTimeout(() => {
+  //     showWarning("This is a warning");
+  //   }, 2000);
+
+  //   setTimeout(() => {
+  //     showInfo("Here's some information");
+  //   }, 3000);
+  // };
+  const testNotifications = () => {
+    showError("Something went wrong", {
+      title: "Error Title",
+      duration: 10000,
+    });
     setTimeout(() => {
-      showError("Something went wrong!", {
-        title: "Error Occurred",
+      showSuccess("Everything is good", {
+        title: "Good Job",
         duration: 8000,
       });
     }, 1000);
+    setTimeout(() => {
+      showInfo("https://github.com/sponge-bobs-square-pants", {
+        title: "Github Link",
+        duration: 8000,
+      });
+    }, 1500);
 
     setTimeout(() => {
-      showWarning("This is a warning");
+      showWarning("https://github.com/sponge-bobs-square-pants", {
+        title: "Follow Please",
+        duration: 8000,
+      });
     }, 2000);
-
     setTimeout(() => {
-      showInfo("Here's some information");
+      showNotification("warning", "Pretty Please", {
+        title: "Custom Warning Title",
+        duration: 14000,
+      });
     }, 3000);
   };
 

@@ -346,8 +346,13 @@ export const NotificationAPI = (() => {
     return notificationContextValue;
   };
 
-  // Global functions
+  // Global functions with debugging
   const showNotification = (type, message, options = {}) => {
+    console.log(`NotificationAPI.showNotification called with:`, {
+      type,
+      message,
+      options,
+    });
     const context = getContextValue();
     if (context) {
       context.showNotification(type, message, options);
@@ -355,6 +360,7 @@ export const NotificationAPI = (() => {
   };
 
   const showError = (message, options = {}) => {
+    console.log(`NotificationAPI.showError called with:`, { message, options });
     const context = getContextValue();
     if (context) {
       context.showError(message, options);
@@ -362,6 +368,10 @@ export const NotificationAPI = (() => {
   };
 
   const showSuccess = (message, options = {}) => {
+    console.log(`NotificationAPI.showSuccess called with:`, {
+      message,
+      options,
+    });
     const context = getContextValue();
     if (context) {
       context.showSuccess(message, options);
@@ -369,6 +379,7 @@ export const NotificationAPI = (() => {
   };
 
   const showInfo = (message, options = {}) => {
+    console.log(`NotificationAPI.showInfo called with:`, { message, options });
     const context = getContextValue();
     if (context) {
       context.showInfo(message, options);
@@ -376,6 +387,10 @@ export const NotificationAPI = (() => {
   };
 
   const showWarning = (message, options = {}) => {
+    console.log(`NotificationAPI.showWarning called with:`, {
+      message,
+      options,
+    });
     const context = getContextValue();
     if (context) {
       context.showWarning(message, options);
