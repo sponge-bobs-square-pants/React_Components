@@ -33,31 +33,31 @@ function App() {
   // };
   const testNotifications = () => {
     showError("Something went wrong", {
-      title: "Error Title",
+      title: "Error Title(Error)",
       duration: 10000,
     });
     setTimeout(() => {
       showSuccess("Everything is good", {
-        title: "Good Job",
+        title: "Good Job(Success)",
         duration: 8000,
       });
     }, 1000);
     setTimeout(() => {
       showInfo("https://github.com/sponge-bobs-square-pants", {
-        title: "Github Link",
+        title: "Github Link(Info)",
         duration: 8000,
       });
     }, 1500);
 
     setTimeout(() => {
       showWarning("https://github.com/sponge-bobs-square-pants", {
-        title: "Follow Please",
+        title: "Follow Please(Warning)",
         duration: 8000,
       });
     }, 2000);
     setTimeout(() => {
       showNotification("error", "https://github.com/sponge-bobs-square-pants", {
-        title: "PRETTY PLEASE!",
+        title: "PRETTY PLEASE!(Notification Error)",
         duration: 14000,
       });
     }, 3000);

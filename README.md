@@ -2,6 +2,16 @@
 
 An elegant, iOS-style notification system for React applications with zero Redux dependency. This package provides beautifully animated, stackable notifications with customizable positions, colors, and behaviors.
 
+## Demo
+
+### Mute Notifications Demo
+
+![Mute Notifications Demo](https://res.cloudinary.com/dfovdz88b/image/upload/v1743755163/dnd/farig3cjvgeamiknofj7.gif)
+
+### Clear Notifications Demo
+
+![Clear Notifications Demo](https://res.cloudinary.com/dfovdz88b/image/upload/v1743755014/dnd/p0tbdur45x2ntf0bypt3.gif)
+
 ## Installation
 
 ```bash

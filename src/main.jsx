@@ -7,15 +7,15 @@ import { NotificationProvider, NotificationPortal } from "./index.js";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <NotificationProvider
-      position="bottom-center"
+      position="top-center"
       width="350px"
       cardHeight="80px"
       cardSpacing={90}
       stackOffset={3}
       zIndex={9999}
       duration={5000} // 5 seconds before notifications disappear
-      headerText="System Notifications" // Custom header text
-      actionButton="Mute" // "Collapse", "Clear", or "Mute"
+      headerText="Notifications" // Custom header text
+      actionButton="Clear" // "Collapse", "Clear", or "Mute"
       customColors={{
         error: "rgb(9, 9, 9)", // Brighter red
         success: "rgb(34, 197, 94)", // Brighter green

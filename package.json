@@ -1,6 +1,6 @@
 {
   "name": "ios-notification-stack",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "iOS-style notification stack system for React applications with bundled dependencies",
   "author": "Parth Chawla",
   "license": "MIT",
